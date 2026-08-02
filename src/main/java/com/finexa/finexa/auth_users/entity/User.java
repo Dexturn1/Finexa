@@ -1,6 +1,7 @@
 package com.finexa.finexa.auth_users.entity;
 
 
+import ch.qos.logback.classic.pattern.ClassOfCallerConverter;
 import com.finexa.finexa.role.entity.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -10,6 +11,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -47,6 +49,9 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Account> accounts;
+
+    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime updatedAt;
 
 
 
