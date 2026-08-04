@@ -5,6 +5,7 @@ import com.finexa.finexa.auth_users.entity.User;
 import com.finexa.finexa.enums.AccountStatus;
 import com.finexa.finexa.enums.AccountType;
 import com.finexa.finexa.enums.Currency;
+import com.finexa.finexa.transaction.entity.Transaction;
 import jakarta.persistence.*;
 import lombok.*;
 import org.aspectj.weaver.GeneratedReferenceTypeDelegate;
