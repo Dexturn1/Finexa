@@ -2,6 +2,7 @@ package com.finexa.finexa.auth_users.entity;
 
 
 import ch.qos.logback.classic.pattern.ClassOfCallerConverter;
+import com.finexa.finexa.account.entity.Account;
 import com.finexa.finexa.role.entity.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
