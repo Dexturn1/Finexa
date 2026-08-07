@@ -21,12 +21,10 @@ import java.util.Map;
 public class NotificationDTO {
 
     private Long id;
-    private String Subject;
-
+    private String subject;
     @NotBlank(message = "Recipient is required")
     private String recipient;
     private String body;
-
     private NotificationType type; // Email SMS PUSH
 
 

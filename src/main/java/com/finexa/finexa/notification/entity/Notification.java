@@ -25,9 +25,8 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String Subject;
+    private String subject;
     private String recipient;
-
     private String body;
 
     @Enumerated(EnumType.STRING)
