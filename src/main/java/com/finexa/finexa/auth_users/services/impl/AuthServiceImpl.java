@@ -29,6 +29,7 @@ import org.springframework.cglib.core.Local;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.time.LocalDateTime;
@@ -95,8 +96,8 @@ public class AuthServiceImpl implements AuthService {
         User savedUser = userRepo.save(user);
 
         //TODO AUTO GENERATE AN ACCOUNT NUMBERT FOR THE USER
-        Account savedAccount = accountService.createAccount(AccountType.SAVINGS, savedUser);
-
+//        Account savedAccount = accountService.createAccount(AccountType.SAVINGS, savedUser);
+//
         //SEND WELCOME EMAIL
         Map<String, Object> vars = new HashMap<>();
         vars.put("name", savedUser.getFirstName());
@@ -115,7 +116,7 @@ public class AuthServiceImpl implements AuthService {
         // SEND ACCOUNT CREATION/DEATILS EMAIL
         Map<String, Object> accountVars = new HashMap<>();
         accountVars.put("name", savedUser.getFirstName());
-        accountVars.put("accountNumber", savedAccount.getAccountNumber());
+//        accountVars.put("accountNumber", savedAccount.getAccountNumber());
         accountVars.put("AccountType", AccountType.SAVINGS.name());
         accountVars.put("currency", Currency.USD);
 
@@ -131,7 +132,7 @@ public class AuthServiceImpl implements AuthService {
         return Response.<String> builder()
                 .statusCode(HttpStatus.OK.value())
                 .message("Your account has been created successfully")
-                .data("Email of your details has been sent to you. Your account number is: " + savedAccount.getAccountNumber())
+//                .data("Email of your details has been sent to you. Your account number is: " + savedAccount.getAccountNumber())
                 .build();
 
     }
@@ -167,6 +168,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public Response<String> forgetPassword(String email) {
 
         User user = userRepo.findByEmail(email)
@@ -203,10 +205,45 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
     @Override
+    @Transactional
     public Response<String> updatePasswordViaResetCode(ResetPassWordRequest resetPassWordRequest) {
-        return null;
-    }
 
+        String code = resetPassWordRequest.getCode();
+        String newPassWord = resetPassWordRequest.getNewPassword();
+
+        PasswordResetCode resetCode = passwordResetCodeRepo.findByCode(code)
+                .orElseThrow(() ->
+                        new BadRequestException("Invalid reset Code"));
+
+        if (resetCode.getExpiryDate().isBefore(LocalDateTime.now())) {
+            passwordResetCodeRepo.delete(resetCode);
+            throw new BadRequestException("Reset code has expired");
+        }
+
+        User user = resetCode.getUser();
+
+        user.setPassword(passwordEncoder.encode(newPassWord));
+        userRepo.save(user);
+
+        passwordResetCodeRepo.delete(resetCode);
+
+        Map<String, Object> templateVariables = new HashMap<>();
+        templateVariables.put("name", user.getFirstName());
+
+        NotificationDTO confirmationEmail = NotificationDTO.builder()
+                .recipient(user.getEmail())
+                .subject("Password Updated Successfully")
+                .templateName("password-update-confirmation")
+                .templateVariables(templateVariables)
+                .build();
+
+        notificationService.sendEmail(confirmationEmail, user);
+
+        return Response.<String>builder()
+                .statusCode(HttpStatus.OK.value())
+                .message("Password updated successfully")
+                .build();
+    }
 
     private LocalDateTime calculateExpiryDate(){
         return LocalDateTime.now().plusHours(5);
