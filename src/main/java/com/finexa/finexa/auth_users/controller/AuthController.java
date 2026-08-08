@@ -24,7 +24,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<Response<String>> createRole(@RequestBody @Valid RegistrationRequest registrationRequest){
+    public ResponseEntity<Response<String>> register(@RequestBody @Valid RegistrationRequest registrationRequest){
         return ResponseEntity.ok(authService.register(registrationRequest));
     }
 
@@ -38,7 +38,7 @@ public class AuthController {
         return ResponseEntity.ok(authService.forgetPassword(resetPassWordRequest.getEmail()));
     }
 
-    @PostMapping("/rest-password")
+    @PostMapping("/reset-password")
     public ResponseEntity<Response<?>> restPassword (@RequestBody ResetPassWordRequest resetPassWordRequest){
         return ResponseEntity.ok(authService.updatePasswordViaResetCode(resetPassWordRequest));
     }
