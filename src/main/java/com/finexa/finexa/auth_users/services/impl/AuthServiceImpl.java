@@ -5,14 +5,18 @@ import com.finexa.finexa.auth_users.dtos.LoginRequest;
 import com.finexa.finexa.auth_users.dtos.LoginResponse;
 import com.finexa.finexa.auth_users.dtos.RegistrationRequest;
 import com.finexa.finexa.auth_users.dtos.ResetPassWordRequest;
+import com.finexa.finexa.auth_users.entity.PasswordResetCode;
 import com.finexa.finexa.auth_users.entity.User;
+import com.finexa.finexa.auth_users.repo.PasswordResetCodeRepo;
 import com.finexa.finexa.auth_users.repo.UserRepo;
 import com.finexa.finexa.auth_users.services.AuthService;
+import com.finexa.finexa.auth_users.services.CodeGenerator;
 import com.finexa.finexa.enums.AccountType;
 import com.finexa.finexa.enums.Currency;
 import com.finexa.finexa.exceptions.BadRequestException;
 import com.finexa.finexa.exceptions.NotFoundException;
 import com.finexa.finexa.notification.dtos.NotificationDTO;
+import com.finexa.finexa.notification.entity.Notification;
 import com.finexa.finexa.notification.services.NotificationService;
 import com.finexa.finexa.res.Response;
 import com.finexa.finexa.role.entity.Role;
@@ -20,10 +24,14 @@ import com.finexa.finexa.role.repo.RoleRepo;
 import com.finexa.finexa.security.TokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cglib.core.Local;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +51,14 @@ public class AuthServiceImpl implements AuthService {
     private final TokenService tokenService;
     private final NotificationService notificationService;
 
+
+    private final CodeGenerator codeGenerator;
+    private final PasswordResetCodeRepo passwordResetCodeRepo;
+
+
+
+    @Value("${password.rest.link}")
+    private String resetLink;
 
 
     @Override
@@ -152,11 +168,47 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Response<String> forgetPassword(String email) {
-        return null;
-    }
 
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("User not Found"));
+
+        passwordResetCodeRepo.deleteByUserId(user.getId());
+
+        String code = codeGenerator.generateUniqueCode();
+
+        PasswordResetCode resetCode = PasswordResetCode.builder()
+                .user(user)
+                .code(code)
+                .expiryDate(calculateExpiryDate())
+                .build();
+
+        passwordResetCodeRepo.save(resetCode);
+
+        Map<String, Object> templateVariables = new HashMap<>();
+        templateVariables.put("name", user.getFirstName());
+        templateVariables.put("resetLink", resetLink + code);
+
+        NotificationDTO notificationDTO = NotificationDTO.builder()
+                .recipient(user.getEmail())
+                .subject("Password Reset Code")
+                .templateName("password-reset")
+                .templateVariables(templateVariables)
+                .build();
+
+        notificationService.sendEmail(notificationDTO, user);
+
+        return Response.<String>builder()
+                .statusCode(HttpStatus.OK.value())
+                .message("Password reset code sent to your email")
+                .build();
+    }
     @Override
     public Response<String> updatePasswordViaResetCode(ResetPassWordRequest resetPassWordRequest) {
         return null;
+    }
+
+
+    private LocalDateTime calculateExpiryDate(){
+        return LocalDateTime.now().plusHours(5);
     }
 }
