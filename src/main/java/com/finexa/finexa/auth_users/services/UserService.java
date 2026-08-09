@@ -23,6 +23,4 @@ public interface UserService {
     Response<?> uploadProfilePicture(MultipartFile file);
 
 
-
-
 }
