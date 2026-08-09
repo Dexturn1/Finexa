@@ -26,17 +26,25 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
+import java.io.File;
+import java.io.IOError;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -49,6 +57,9 @@ public class UserServiceImpl implements UserService {
     private final NotificationService notificationService;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
+
+
+    private final String uploadDir = "uploads/profile-pictures/";
 
 
     @Override
@@ -133,6 +144,51 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Response<?> uploadProfilePicture(MultipartFile file) {
-        return null;
+        User user = getCurrentLoggedInUser();
+
+
+        try {
+            Path uploadPath = Paths.get(uploadDir);
+
+            if(!Files.exists(uploadPath)){
+                Files.createDirectories(uploadPath);
+            }
+
+
+            if(user.getProfilePictureUrl() != null && !user.getProfilePictureUrl().isEmpty()){
+                Path oldFile = Paths.get(user.getProfilePictureUrl());
+                if(Files.exists(oldFile)){
+                    Files.delete(oldFile);
+                }
+            }
+
+            //Generate a unique file name to avoid conficts
+            String originalFileName = file.getOriginalFilename();
+            String fileExtension = "";
+            if(originalFileName != null && originalFileName.contains(".")){
+                fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
+            }
+
+            String newFileName = UUID.randomUUID() + fileExtension;
+            Path filePath = uploadPath.resolve(newFileName);
+
+            Files.copy(file.getInputStream(), filePath);
+
+            String fileUrl = filePath.toString();
+            user.setProfilePictureUrl(fileUrl);
+            userRepo.save(user);
+
+            return Response.builder()
+                    .statusCode(HttpStatus.OK.value())
+                    .message("Profile Picture uploaded successfully")
+                    .data(fileUrl)
+                    .build();
+
+
+        }
+        catch (IOException e){
+            throw new RuntimeException(e.getMessage());
+        }
+
     }
 }
