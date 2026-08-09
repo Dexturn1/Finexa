@@ -9,7 +9,9 @@ import com.finexa.finexa.auth_users.entity.User;
 import com.finexa.finexa.auth_users.repo.UserRepo;
 import com.finexa.finexa.auth_users.services.AuthService;
 import com.finexa.finexa.auth_users.services.UserService;
+import com.finexa.finexa.exceptions.BadRequestException;
 import com.finexa.finexa.exceptions.NotFoundException;
+import com.finexa.finexa.notification.dtos.NotificationDTO;
 import com.finexa.finexa.notification.entity.Notification;
 import com.finexa.finexa.notification.services.NotificationService;
 import com.finexa.finexa.res.Response;
@@ -25,11 +27,16 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +47,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepo userRepo;
     private final NotificationService notificationService;
-    private final PasswordResetCode passwordResetCode;
+    private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
 
 
@@ -79,12 +86,49 @@ public class UserServiceImpl implements UserService {
                 .message("User retrieved")
                 .data(userDTOS)
                 .build();
-
     }
 
     @Override
     public Response<?> updatePassword(UpdatePasswordRequest updatePasswordRequest) {
-        return null;
+        User user = getCurrentLoggedInUser();
+
+
+        String newPassword = updatePasswordRequest.getNewPassword();
+        String oldPassword = updatePasswordRequest.getOldPassword();
+
+        if(oldPassword == null || newPassword == null){
+            throw new BadRequestException("Old and new Password Required");
+        }
+
+        //validate the old passwor
+        if(!passwordEncoder.matches(oldPassword, user.getPassword())){
+            throw new BadRequestException("Old Password not Correct");
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setUpdatedAt(LocalDateTime.now());
+
+        userRepo.save(user);
+
+        // Send password change confirmation email.
+        Map<String, Object> templateVariables = new HashMap<>();
+        templateVariables.put("name", user.getFirstName());
+
+
+        NotificationDTO notificationDTO = NotificationDTO.builder()
+                .recipient(user.getEmail())
+                .subject("Your Password was successfully changed")
+                .templateName("password-change")
+                .templateVariables(templateVariables)
+                .build();
+
+
+        notificationService.sendEmail(notificationDTO, user);
+
+        return Response.builder()
+                .statusCode(HttpStatus.OK.value())
+                .message("Password Change Successfully")
+                .build();
+
     }
 
     @Override
