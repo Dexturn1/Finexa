@@ -1,6 +1,7 @@
 package com.finexa.finexa.auth_users.services.impl;
 
 import com.finexa.finexa.account.entity.Account;
+import com.finexa.finexa.account.services.AccountService;
 import com.finexa.finexa.auth_users.dtos.LoginRequest;
 import com.finexa.finexa.auth_users.dtos.LoginResponse;
 import com.finexa.finexa.auth_users.dtos.RegistrationRequest;
@@ -11,6 +12,7 @@ import com.finexa.finexa.auth_users.repo.PasswordResetCodeRepo;
 import com.finexa.finexa.auth_users.repo.UserRepo;
 import com.finexa.finexa.auth_users.services.AuthService;
 import com.finexa.finexa.auth_users.services.CodeGenerator;
+import com.finexa.finexa.enums.AccountStatus;
 import com.finexa.finexa.enums.AccountType;
 import com.finexa.finexa.enums.Currency;
 import com.finexa.finexa.exceptions.BadRequestException;
@@ -51,6 +53,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
     private final NotificationService notificationService;
+    private final AccountService accountService;
 
 
     private final CodeGenerator codeGenerator;
@@ -96,7 +99,8 @@ public class AuthServiceImpl implements AuthService {
         User savedUser = userRepo.save(user);
 
         //TODO AUTO GENERATE AN ACCOUNT NUMBERT FOR THE USER
-//        Account savedAccount = accountService.createAccount(AccountType.SAVINGS, savedUser);
+        //Creat Account number for the user
+        Account savedAccount = accountService.createAccount(AccountType.SAVINGS, savedUser);
 //
         //SEND WELCOME EMAIL
         Map<String, Object> vars = new HashMap<>();
@@ -116,7 +120,7 @@ public class AuthServiceImpl implements AuthService {
         // SEND ACCOUNT CREATION/DEATILS EMAIL
         Map<String, Object> accountVars = new HashMap<>();
         accountVars.put("name", savedUser.getFirstName());
-//        accountVars.put("accountNumber", savedAccount.getAccountNumber());
+        accountVars.put("accountNumber", savedAccount.getAccountNumber());
         accountVars.put("AccountType", AccountType.SAVINGS.name());
         accountVars.put("currency", Currency.USD);
 
@@ -132,7 +136,7 @@ public class AuthServiceImpl implements AuthService {
         return Response.<String> builder()
                 .statusCode(HttpStatus.OK.value())
                 .message("Your account has been created successfully")
-//                .data("Email of your details has been sent to you. Your account number is: " + savedAccount.getAccountNumber())
+                .data("Email of your details has been sent to you. Your account number is: " + savedAccount.getAccountNumber())
                 .build();
 
     }
