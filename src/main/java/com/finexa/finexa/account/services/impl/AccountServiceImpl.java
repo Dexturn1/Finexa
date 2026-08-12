@@ -46,6 +46,8 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Account createAccount(AccountType accountType, User user) {
 
+        log.info("Inside CreateAccount()");
+
         String accountNumber = generateAccountNumber();
 
         Account account = Account.builder()
@@ -108,6 +110,7 @@ public class AccountServiceImpl implements AccountService {
             accountNumber = "66" + (random.nextInt(90000000)+ 10000000);
         }while (accountRepo.findByAccountNumber(accountNumber).isPresent());
 
+        log.info("Account number generated{}",accountNumber);
         return accountNumber;
     }
 }
