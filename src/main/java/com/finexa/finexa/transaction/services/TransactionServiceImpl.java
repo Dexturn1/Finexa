@@ -98,25 +98,44 @@ public class TransactionServiceImpl implements TransactionService {
 
 
     private void handleWithdrawal(TransactionRequest request, Transaction transaction){
-
         Account account = accountRepo.findByAccountNumber(request.getAccountNumber())
                 .orElseThrow(()-> new NotFoundException("Account not found"));
-
 
         if((account.getBalance().compareTo(request.getAmount())  < 0 ) ){
             throw new InsufficientBalanceException("Insufficient balance");
         }
 
-
         account.setBalance(account.getBalance().subtract(request.getAmount()));
         transaction.setAccount(account);
         accountRepo.save(account);
-
-
     }
 
 
+    private void handleTransfer(TransactionRequest request, Transaction transaction){
+
+        Account sourceAccount = accountRepo.findByAccountNumber(request.getAccountNumber())
+                .orElseThrow(()-> new NotFoundException("Account not found"));
+
+        Account destinationAccount = accountRepo.findByAccountNumber(request.getDestinationAccountNumber())
+                .orElseThrow(()-> new NotFoundException("Account not found"));
+
+
+        if(sourceAccount.getBalance().compareTo(request.getAmount()) < 0)
+                throw new InsufficientBalanceException("Insufficient balance in source account");
+
+        // deduct from source
+        sourceAccount.setBalance(sourceAccount.getBalance().subtract(request.getAmount()));
+        accountRepo.save(sourceAccount);
+
+        // add to destination
+        destinationAccount.setBalance(destinationAccount.getBalance().add(request.getAmount()));
+        accountRepo.save(destinationAccount);
+
+        transaction.setAccount(sourceAccount);
+        transaction.setSourceAccount(sourceAccount.getAccountNumber());
+        transaction.setSourceAccount(destinationAccount.getAccountNumber());
 
 
 
+    }
 }
