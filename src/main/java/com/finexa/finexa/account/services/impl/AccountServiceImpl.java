@@ -62,8 +62,9 @@ public class AccountServiceImpl implements AccountService {
         return accountRepo.save(account);
     }
 
+
     @Override
-    public Response<List<AccountDTO>> getMyAccount() {
+    public Response<List<AccountDTO>> getMyAccounts() {
         User user = userService.getCurrentLoggedInUser();
 
         List<AccountDTO> accounts = accountRepo.findByUserId(user.getId())

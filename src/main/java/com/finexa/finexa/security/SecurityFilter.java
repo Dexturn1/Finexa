@@ -39,7 +39,7 @@ public class SecurityFilter {
                         .authenticationEntryPoint(customAuthenticationEntryPoint)
                 )
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/api/roles/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

@@ -30,6 +30,4 @@ public class AccountController {
         return ResponseEntity.ok(accountService.closeAccount(accountNumber));
     }
 
-
-
 }

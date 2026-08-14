@@ -28,7 +28,7 @@ public class RoleServiceImpl implements RoleService {
             throw new BadRequestException("Role already exists");
         }
         Role savedRole = roleRepo.save(roleRequest);
-        return Response.<Role>builder().statusCode(HttpStatus.OK.value()).message("Role saved successfully").build();
+        return Response.<Role>builder().statusCode(HttpStatus.OK.value()).message("Role saved successfully").data(savedRole).build();
     }
 
     @Override

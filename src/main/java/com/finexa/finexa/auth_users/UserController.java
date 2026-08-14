@@ -48,7 +48,4 @@ public class UserController {
         return ResponseEntity.ok(userService.uploadProfilePicture(file));
     }
 
-
-
-
 }
