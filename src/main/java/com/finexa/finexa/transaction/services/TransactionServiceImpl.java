@@ -7,6 +7,7 @@ import com.finexa.finexa.account.services.AccountService;
 import com.finexa.finexa.auth_users.entity.User;
 import com.finexa.finexa.auth_users.services.UserService;
 import com.finexa.finexa.enums.TransactionStatus;
+import com.finexa.finexa.exceptions.InsufficientBalanceException;
 import com.finexa.finexa.exceptions.InvalidTransactionException;
 import com.finexa.finexa.exceptions.NotFoundException;
 import com.finexa.finexa.notification.services.NotificationService;
@@ -55,7 +56,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         switch (transactionRequest.getTransactionType()){
             case DEPOSIT -> handleDeposit(transactionRequest, transaction);
-            case WITHDRAWAL -> handleWithdrawl(transactionRequest, transaction);
+            case WITHDRAWAL -> handleWithdrawal(transactionRequest, transaction);
             case TRANSFER -> handleTransfer(transactionRequest, transaction);
             default -> throw new InvalidTransactionException("Invalid transaction type");
         }
@@ -92,6 +93,25 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setAccount(account);
 
         accountRepo.save(account);
+
+    }
+
+
+    private void handleWithdrawal(TransactionRequest request, Transaction transaction){
+
+        Account account = accountRepo.findByAccountNumber(request.getAccountNumber())
+                .orElseThrow(()-> new NotFoundException("Account not found"));
+
+
+        if((account.getBalance().compareTo(request.getAmount())  < 0 ) ){
+            throw new InsufficientBalanceException("Insufficient balance");
+        }
+
+
+        account.setBalance(account.getBalance().subtract(request.getAmount()));
+        transaction.setAccount(account);
+        accountRepo.save(account);
+
 
     }
 
