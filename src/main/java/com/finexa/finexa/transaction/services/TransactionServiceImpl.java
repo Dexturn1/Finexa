@@ -1,13 +1,19 @@
 package com.finexa.finexa.transaction.services;
 
 
+import com.finexa.finexa.account.entity.Account;
+import com.finexa.finexa.account.repo.AccountRepo;
 import com.finexa.finexa.account.services.AccountService;
 import com.finexa.finexa.auth_users.entity.User;
 import com.finexa.finexa.auth_users.services.UserService;
+import com.finexa.finexa.enums.TransactionStatus;
+import com.finexa.finexa.exceptions.InvalidTransactionException;
+import com.finexa.finexa.exceptions.NotFoundException;
 import com.finexa.finexa.notification.services.NotificationService;
 import com.finexa.finexa.res.Response;
 import com.finexa.finexa.transaction.dtos.TransactionDTO;
 import com.finexa.finexa.transaction.dtos.TransactionRequest;
+import com.finexa.finexa.transaction.entity.Transaction;
 import com.finexa.finexa.transaction.repo.TransactionRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,14 +38,65 @@ public class TransactionServiceImpl implements TransactionService {
 
     private final ModelMapper modelMapper;
 
+    private final AccountRepo accountRepo;
+
 
     @Override
     public Response<?> createTransaction(TransactionRequest transactionRequest) {
-        return null;
+
+        Transaction transaction = new Transaction();
+
+        transaction.setTransactionType(transactionRequest.getTransactionType());
+
+        transaction.setAmount(transactionRequest.getAmount());
+        transaction.setDescription(transactionRequest.getDestinationAccountNumber());
+
+
+
+        switch (transactionRequest.getTransactionType()){
+            case DEPOSIT -> handleDeposit(transactionRequest, transaction);
+            case WITHDRAWAL -> handleWithdrawl(transactionRequest, transaction);
+            case TRANSFER -> handleTransfer(transactionRequest, transaction);
+            default -> throw new InvalidTransactionException("Invalid transaction type");
+        }
+
+        transaction.setStatus(TransactionStatus.SUCCESS);
+        Transaction savedTransaction = transactionRepo.save(transaction);
+
+
+        // send Notification out
+        sendTransactionNotifications(savedTxn);
+
+        return Response.builder()
+                .statusCode(200)
+                .message("Transfer successful")
+                .build();
+
+
+
     }
 
     @Override
-    public Response<List<TransactionDTO>> getTransactionForAccount(String accountNumber, int page, int size) {
+    public Response<List<TransactionDTO>> getTransactionForMyAccount(String accountNumber, int page, int size) {
         return null;
     }
+
+
+    private void handleDeposit(TransactionRequest request, Transaction transaction){
+
+        Account account = accountRepo.findByAccountNumber(request.getAccountNumber())
+                .orElseThrow(()-> new NotFoundException("Account not found"));
+
+
+        account.setBalance(account.getBalance().add(request.getAmount()));
+        transaction.setAccount(account);
+
+        accountRepo.save(account);
+
+    }
+
+
+
+
+
 }
