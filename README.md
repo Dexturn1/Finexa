@@ -1,662 +1,324 @@
-Finexa
+# Finexa 💳
 
-Modern Banking & Fintech Backend built with Spring Boot
+[![Java](https://img.shields.io/badge/Java-17%2B-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://www.oracle.com/java/)
+[![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![JWT](https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens)](https://jwt.io/)
 
-Finexa is a backend-focused banking and fintech application built with Java and Spring Boot. It provides a secure REST API for user authentication, bank account management, financial transactions, and automated email notifications.
+**Finexa** is a secure, backend-focused banking and fintech REST API application built with **Java** and **Spring Boot**, designed to demonstrate enterprise-grade backend architecture, transactional integrity, and clean code practices.
 
-The project is designed with a layered architecture and follows common backend development practices such as DTO-based API communication, service/repository separation, validation, centralized exception handling, JWT-based authentication, and transactional database operations.
+Finexa provides robust APIs for user authentication, account management, financial transactions with balance guard checks, and automated transactional email notifications.
 
-⸻
+---
 
-Features
+## 📑 Table of Contents
 
-Authentication & User Management
+- [✨ Features](#-features)
+  - [Authentication & User Management](#authentication--user-management)
+  - [Account Management](#account-management)
+  - [Transaction Engine](#transaction-engine)
+  - [Email Notification System](#email-notification-system)
+- [🛠 Tech Stack](#-tech-stack)
+- [🏛 Architecture](#-architecture)
+- [📁 Project Structure](#-project-structure)
+- [🔄 Core Workflows](#-core-workflows)
+  - [1. Authentication Flow](#1-authentication-flow)
+  - [2. Transaction Flow](#2-transaction-flow)
+  - [3. Financial Precision](#3-financial-precision)
+  - [4. DTO-Based API Design](#4-dto-based-api-design)
+- [🔌 API Reference](#-api-reference)
+- [🚀 Getting Started](#-getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation & Setup](#installation--setup)
+  - [Environment Variables](#environment-variables)
+  - [Running the Application](#running-the-application)
+- [🧪 API Testing](#-api-testing)
+- [🛡 Security](#-security)
+- [🗺 Roadmap](#-roadmap)
+- [👨‍💻 Author](#-author)
+- [📄 License](#-license)
 
-* User registration
-* Secure user authentication
-* JWT-based authentication
-* Password management
-* Password reset workflow
-* Password update confirmation
-* Email-based user notifications
-* Request validation
-* Secure access to protected APIs
+---
 
-Account Management
+## ✨ Features
 
-* Create bank accounts
-* Retrieve account information
-* Account status management
-* Account type management
-* Currency support
-* Account balance management
-* User-account relationship management
-* Account transaction history
+### Authentication & User Management
+- 🔐 User registration and secure login
+- 🎟️ JWT-based stateless authentication
+- 🔒 Protected REST endpoints with Spring Security
+- 🔑 Password management & self-service reset workflows
+- 📬 Automated password update confirmation alerts
+- ✅ Request validation via Jakarta Bean Validation
+- 🚫 Centralized Global Exception Handling
 
-Transactions
+### Account Management
+- 🏦 Dynamic bank account creation & user mapping
+- 💰 Real-time account balance tracking & currency support
+- 📊 Account type & status lifecycle management
+- 📜 Granular transaction history per account
 
-Finexa supports core banking transaction workflows.
+### Transaction Engine
+- 💵 Credit and debit processing
+- 🛡️ **Balance Guard:** Automatic prevention of overdraft / insufficient balance
+- 💰 Exact financial precision using Java `BigDecimal`
+- 🕐 Auditable transaction timestamps & status tracking
 
-* Credit transactions
-* Debit transactions
-* Transaction status management
-* Transaction type management
-* Balance validation
-* Insufficient balance protection
-* Transaction timestamps
-* Transaction history
-* Secure account-to-account transaction processing
+### Email Notification System
+Finexa integrates **Thymeleaf HTML templates** to deliver styled transactional emails for:
+- 👋 Welcome onboarding
+- 🏦 New account creation alerts
+- 💵 Credit & 💸 Debit notifications
+- 🔐 Password reset and security change confirmations
 
-Financial operations are handled using BigDecimal to avoid the precision problems associated with floating-point arithmetic.
+---
 
-Email Notifications
+## 🛠 Tech Stack
 
-Finexa provides automated email notifications for important account and security events.
+| Layer | Technology | Purpose |
+| :--- | :--- | :--- |
+| **Language** | Java 17+ | Core programming language |
+| **Framework** | Spring Boot | Enterprise application framework |
+| **Web** | Spring Web | RESTful API development |
+| **Security** | Spring Security + JWT | Authentication, authorization & token parsing |
+| **Persistence** | Spring Data JPA | Data access abstraction |
+| **ORM** | Hibernate | Object-relational mapping |
+| **Database** | PostgreSQL | Relational database storage |
+| **Validation** | Jakarta Bean Validation | DTO input validation |
+| **Templates** | Thymeleaf | HTML email rendering |
+| **Utilities** | Lombok | Boilerplate reduction |
+| **Build Tool** | Maven | Dependency & build management |
 
-Available email templates include:
+---
 
-* Welcome email
-* Account creation notification
-* Credit alert
-* Debit alert
-* Password change notification
-* Password reset notification
-* Password update confirmation
+## 🏛 Architecture
 
-The email templates are built using Thymeleaf and are designed to provide consistent transactional communication.
+Finexa adheres to standard **Layered Architecture** principles, enforcing a strict separation of concerns:
+Finexa adheres to standard **Layered Architecture** principles, enforcing a strict separation of concerns:
 
-⸻
+┌───────────────────────────────────────────────────────────┐
+│                          Client                           │
+│                 (Web / Mobile / Postman)                  │
+└─────────────────────────────┬─────────────────────────────┘
+│ REST / JSON
+▼
+┌───────────────────────────────────────────────────────────┐
+│                     Controller Layer                      │
+│               REST Endpoints + DTO Validation             │
+└─────────────────────────────┬─────────────────────────────┘
+│
+▼
+┌───────────────────────────────────────────────────────────┐
+│                      Service Layer                        │
+│                 Business Logic & Rules                    │
+└───────────────┬───────────────────────────┬───────────────┘
+│                           │
+▼                           ▼
+┌───────────────────────────┐   ┌───────────────────────────┐
+│     Repository Layer      │   │    Supporting Services    │
+│     (Spring Data JPA)     │   │     (Security / Mail)     │
+└───────────────┬───────────┘   └───────────────────────────┘
+│
+▼
+┌───────────────────────────┐
+│        PostgreSQL         │
+│         Database          │
+└───────────────────────────┘
 
-Tech Stack
 
-Technology	Purpose
-Java	Backend programming language
-Spring Boot	Application framework
-Spring Web	REST API development
-Spring Data JPA	Database persistence
-Hibernate	ORM
-Spring Security	Application security
-JWT	Authentication & authorization
-PostgreSQL	Relational database
-Thymeleaf	Email templates
-Jakarta Validation	Request validation
-Lombok	Boilerplate reduction
-Maven	Dependency management
-REST API	Client-server communication
+---
 
-⸻
+## 📁 Project Structure
 
-Architecture
-
-Finexa follows a layered backend architecture:
-
-                    ┌──────────────────────┐
-                    │       Client         │
-                    │ Web / Mobile / API   │
-                    └──────────┬───────────┘
-                               │
-                               ▼
-                    ┌──────────────────────┐
-                    │      Controller      │
-                    │     REST Endpoints   │
-                    └──────────┬───────────┘
-                               │
-                               ▼
-                    ┌──────────────────────┐
-                    │       Service        │
-                    │ Business Logic       │
-                    └──────────┬───────────┘
-                               │
-                  ┌────────────┴────────────┐
-                  ▼                         ▼
-        ┌──────────────────┐      ┌──────────────────┐
-        │   Repository     │      │ External Services│
-        │   Data Access    │      │ Email / Security │
-        └────────┬─────────┘      └──────────────────┘
-                 │
-                 ▼
-        ┌──────────────────┐
-        │    PostgreSQL    │
-        │     Database     │
-        └──────────────────┘
-
-The application separates responsibilities between controllers, services, repositories, entities, DTOs, and supporting components.
-
-⸻
-
-Project Structure
-
-The project is organized by domain rather than putting everything into one giant folder, because apparently software becomes easier to maintain when every class isn’t dumped into a single package.
-
-src/
-└── main/
-    ├── java/
-    │   └── com/
-    │       └── finexa/
-    │           └── finexa/
-    │               ├── account/
-    │               │   ├── controller/
-    │               │   ├── dtos/
-    │               │   ├── entity/
-    │               │   ├── repo/
-    │               │   └── services/
-    │               │
-    │               ├── auth_users/
-    │               │   ├── controller/
-    │               │   ├── dtos/
-    │               │   ├── entity/
-    │               │   ├── repo/
-    │               │   └── services/
-    │               │
-    │               ├── transaction/
-    │               │   ├── controller/
-    │               │   ├── dtos/
-    │               │   ├── entity/
-    │               │   ├── repo/
-    │               │   └── services/
-    │               │
-    │               ├── enums/
-    │               ├── exceptions/
-    │               ├── res/
-    │               └── ...
+```text
+Finexa/
+├── src/
+│   └── main/
+│       ├── java/com/finexa/finexa/
+│       │   ├── account/
+│       │   │   ├── controller/
+│       │   │   ├── dtos/
+│       │   │   ├── entity/
+│       │   │   ├── repo/
+│       │   │   └── services/
+│       │   ├── auth_users/
+│       │   │   ├── controller/
+│       │   │   ├── dtos/
+│       │   │   ├── entity/
+│       │   │   ├── repo/
+│       │   │   └── services/
+│       │   ├── transaction/
+│       │   │   ├── controller/
+│       │   │   ├── dtos/
+│       │   │   ├── entity/
+│       │   │   ├── repo/
+│       │   │   └── services/
+│       │   ├── enums/
+│       │   ├── exceptions/
+│       │   └── res/
+│       └── resources/
+│           ├── templates/email/
+│           │   ├── welcome.html
+│           │   ├── account-created.html
+│           │   ├── credit-alert.html
+│           │   ├── debit-alert.html
+│           │   ├── password-change.html
+│           │   ├── password-reset.html
+│           │   └── password-update-confirmation.html
+│           └── application.properties
+├── pom.xml
+├── mvnw
+└── README.md
+🔄 Core Workflows
+1. Authentication Flow
+Plaintext
+[ Client ] ──( Credentials )──▶ [ AuthController ] ──▶ [ UserService ] ──▶ [ Database ]
+                                        │
+[ Client ] ◀──( Returns JWT )───────────┘
     │
-    └── resources/
-        ├── templates/
-        │   └── email/
-        │       ├── welcome.html
-        │       ├── account-created.html
-        │       ├── credit-alert.html
-        │       ├── debit-alert.html
-        │       ├── password-change.html
-        │       ├── password-reset.html
-        │       └── password-update-confirmation.html
-        │
-        └── application.properties
+    └──( Authorization: Bearer <Token> )──▶ [ Protected Endpoints ]
+2. Transaction Flow & Balance Guard
+Plaintext
+Client Request
+      │
+      ▼
+Transaction Controller ──▶ Validate Request DTO
+      │
+      ▼
+Transaction Service    ──▶ Fetch Account ──▶ Validate Balance (Debit check)
+      │                                                │
+      ├─────────────────────── Inefficient Balance? ───┴──▶ Throws InsufficientBalanceException
+      │
+      ├──▶ Update Balance
+      ├──▶ Persist Transaction in PostgreSQL
+      └──▶ Dispatch Async Email Notification
+3. Financial Precision
+Financial data avoids binary floating-point rounding issues by using BigDecimal:
 
-⸻
-
-Authentication Flow
-
-Finexa uses JWT-based authentication to secure protected endpoints.
-
-User
- │
- │ Register
- ▼
-Auth Controller
- │
- ▼
-User Service
- │
- ▼
-User Repository
- │
- ▼
-Database
-User
- │
- │ Login
- ▼
-Authentication
- │
- ▼
-Credentials Validation
- │
- ▼
-JWT Generation
- │
- ▼
-Client
- │
- │ Authorization: Bearer <token>
- ▼
-JWT Authentication Filter
- │
- ▼
-Protected Controller
-
-The JWT allows authenticated users to access protected resources without relying on server-side session storage.
-
-⸻
-
-Transaction Flow
-
-A typical transaction follows this flow:
-
-Client
-   │
-   ▼
-Transaction Controller
-   │
-   ▼
-Transaction Service
-   │
-   ├── Validate Request
-   │
-   ├── Find Account
-   │
-   ├── Check Account Status
-   │
-   ├── Validate Balance
-   │
-   ├── Update Account Balance
-   │
-   ├── Create Transaction
-   │
-   ├── Persist Transaction
-   │
-   └── Send Notification
-   │
-   ▼
-PostgreSQL
-
-For debit transactions, Finexa validates that the account has sufficient funds before processing the transaction.
-
-This prevents invalid operations such as:
-
-Available Balance: ₹5,000
-Debit Request:     ₹8,000
-Result:
-InsufficientBalanceException
-
-⸻
-
-Financial Precision
-
-Financial values are represented using Java’s BigDecimal instead of double or float.
-
+Java
+// Avoid double/float precision artifacts (e.g., 0.1 + 0.2 = 0.30000000000000004)
 private BigDecimal amount;
+4. DTO-Based API Design
+JPA entities are strictly isolated from the presentation layer via Data Transfer Objects (DTOs) to ensure encapsulation and prevent unintended data exposure.
 
-This is important for financial applications because floating-point arithmetic can introduce precision errors.
-
-For example, using floating-point numbers for money can produce results such as:
-
-0.1 + 0.2 = 0.30000000000000004
-
-Banking software is generally not the place to let floating-point mathematics freestyle.
-
-⸻
-
-Transaction Types & Status
-
-Finexa uses enums to represent transaction-related states.
-
-TransactionType
-
-Examples can include:
-
-CREDIT
-DEBIT
-
-Transactions also maintain a status through:
-
-TransactionStatus
-
-This provides a controlled set of valid transaction states rather than relying on arbitrary strings.
-
-⸻
-
-DTO-Based API Design
-
-Finexa uses Data Transfer Objects to separate API request/response models from persistence entities.
-
-Example:
-
-Client
-   │
-   ▼
-Request DTO
-   │
-   ▼
-Controller
-   │
-   ▼
-Service
-   │
-   ▼
-Entity
-   │
-   ▼
-Repository
-   │
-   ▼
-Database
-
-This helps prevent exposing JPA entities directly through the API and provides a cleaner boundary between the API and persistence layers.
-
-⸻
-
-Validation & Error Handling
-
-Finexa uses request validation to prevent invalid data from entering the application.
-
-Examples include:
-
-* Email format validation
-* Required field validation
-* Input validation
-* Transaction amount validation
-* Authentication validation
-* Account validation
-* Balance validation
-
-Custom exceptions are used for domain-specific failures, including insufficient account balance.
-
-A centralized response structure is also used to provide consistent API responses.
-
-Example:
-
-{
-  "message": "Insufficient balance"
-}
-
-⸻
-
-Email Notification System
-
-Finexa integrates transactional email notifications for important events.
-
-Account Events
-
-Account Created
-      │
-      ▼
-Email Service
-      │
-      ▼
-account-created.html
-      │
-      ▼
-User Email
-
-Transaction Events
-
-Credit Transaction
-       │
-       ▼
-Credit Alert Email
-Debit Transaction
-       │
-       ▼
-Debit Alert Email
-
-The email templates use Thymeleaf for dynamic content such as:
-
-* User name
-* Account information
-* Transaction amount
-* Transaction type
-* Transaction date
-* Transaction status
-* Account balance
-
-⸻
-
-Database
-
-Finexa uses a relational database to maintain structured banking data.
-
-Core domain relationships include:
-
-User
- │
- └── Account
-       │
-       └── Transaction
-
-A user can have accounts, and accounts maintain their associated transaction records.
-
-JPA/Hibernate is used to map Java entities to relational database tables.
-
-⸻
-
-API Endpoints
-
-The API is organized around major application domains.
-
-Authentication
-
-POST   /api/auth/register
-POST   /api/auth/login
-...
-
-Accounts
-
-POST   /api/accounts
-GET    /api/accounts/{id}
-...
-
-Transactions
-
-POST   /api/transactions
-GET    /api/transactions/{id}
-...
-
-Endpoint paths may vary depending on the current controller mappings in the project.
-
-⸻
-
-Getting Started
-
+🔌 API Reference
+🔐 Authentication
+Method	Endpoint	Description	Auth Required
+POST	/api/auth/register	Register a new user	❌
+POST	/api/auth/login	Authenticate and obtain JWT	❌
+POST	/api/auth/password-reset	Request password reset email	❌
+🏦 Accounts
+Method	Endpoint	Description	Auth Required
+POST	/api/accounts	Create a new bank account	✅
+GET	/api/accounts/{id}	Retrieve account details	✅
+GET	/api/accounts/user/{userId}	Retrieve all accounts for a user	✅
+💸 Transactions
+Method	Endpoint	Description	Auth Required
+POST	/api/transactions	Process credit or debit transaction	✅
+GET	/api/transactions/{id}	Get transaction details	✅
+GET	/api/transactions/account/{id}	Get account transaction history	✅
+🚀 Getting Started
 Prerequisites
+Java 17+ (java -version)
 
-Make sure the following are installed:
+Maven 3.8+ (mvn -version)
 
-* Java 17+
-* Maven
-* PostgreSQL
-* Git
+PostgreSQL 14+ (psql --version)
 
-Verify Java:
+Git
 
-java -version
+Installation & Setup
+Clone the repository:
 
-Verify Maven:
+Bash
+git clone [https://github.com/Dexturn1/Finexa.git](https://github.com/Dexturn1/Finexa.git)
+cd Finexa
+Create the Database:
 
-mvn -version
-
-⸻
-
-Clone the Repository
-
-git clone https://github.com/your-username/finexa.git
-cd finexa
-
-⸻
-
-Database Configuration
-
-Create a PostgreSQL database:
-
+SQL
 CREATE DATABASE finexa;
-
-Configure your database connection in:
-
-src/main/resources/application.properties
-
-Example:
-
-spring.datasource.url=jdbc:postgresql://localhost:5432/finexa
-spring.datasource.username=YOUR_USERNAME
-spring.datasource.password=YOUR_PASSWORD
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=false
-
-Never commit real database credentials, JWT secrets, or email credentials to GitHub.
-
-Use environment variables or a secrets management solution for production deployments.
-
-⸻
-
 Environment Variables
+Configure your sensitive credentials in src/main/resources/application.properties or set them as environment variables:
 
-Sensitive configuration should be provided through environment variables.
+Properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/finexa
+spring.datasource.username=${DB_USERNAME:postgres}
+spring.datasource.password=${DB_PASSWORD:postgres}
 
-Example:
+jwt.secret=${JWT_SECRET}
 
-DB_USERNAME
-DB_PASSWORD
-JWT_SECRET
-MAIL_USERNAME
-MAIL_PASSWORD
-
-Configure these according to your local environment.
-
-⸻
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=${MAIL_USERNAME}
+spring.mail.password=${MAIL_PASSWORD}
+⚠️ Warning: Never commit production credentials, secrets, or mail passwords directly to source control.
 
 Running the Application
+Using the Maven Wrapper:
 
-Using Maven:
-
+Bash
+# macOS/Linux
 ./mvnw spring-boot:run
 
-Or:
+# Windows
+mvnw.cmd spring-boot:run
+The application will start on http://localhost:8080.
 
-mvn spring-boot:run
-
-The application will start on the configured Spring Boot port.
-
-By default:
-
-http://localhost:8080
-
-⸻
-
-API Testing
-
-You can test the API using tools such as:
-
-* Postman
-* Insomnia
-* cURL
-* Swagger/OpenAPI, if configured
-
-Example registration request:
-
+🧪 API Testing
+1. Register a User
+HTTP
 POST /api/auth/register
 Content-Type: application/json
+
 {
   "name": "John Doe",
   "email": "john@example.com",
   "password": "SecurePassword123"
 }
-
-Example login request:
-
+2. Login & Retrieve JWT
+HTTP
 POST /api/auth/login
 Content-Type: application/json
+
 {
   "email": "john@example.com",
   "password": "SecurePassword123"
 }
+3. Access Protected Endpoint
+HTTP
+GET /api/accounts/1
+Authorization: Bearer <YOUR_JWT_TOKEN>
+🛡 Security
+🔐 Stateless authentication with JWT & Spring Security
 
-After successful authentication, the returned JWT can be used to access protected endpoints.
+🛡️ Strict DTO validation to prevent mass-assignment vulnerabilities
 
-Authorization: Bearer <JWT_TOKEN>
+🔑 BCrypt password hashing
 
-⸻
+🚫 Centralized error handling preventing stack-trace leaks
 
-Security Considerations
+🔒 Environment-variable-based secret management
 
-Finexa applies several backend security practices:
+🗺 Roadmap
+[ ] Swagger / OpenAPI 3 interactive documentation
 
-* JWT-based authentication
-* Protected API endpoints
-* Password handling through Spring Security mechanisms
-* Input validation
-* Authentication checks
-* Authorization checks
-* Secure exception handling
-* Environment-based secret configuration
+[ ] Redis caching for account balances & sessions
 
-For a production banking system, additional controls would be required, including stronger auditing, rate limiting, fraud detection, encryption strategies, secure secret management, monitoring, and comprehensive security testing.
+[ ] Refresh token rotation mechanism
 
-This project focuses on demonstrating backend engineering and fintech application architecture rather than claiming to be an actual production banking platform.
+[ ] Idempotency-Key support for payment requests
 
-⸻
+[ ] Docker & Docker Compose containerization
 
-Future Improvements
+[ ] GitHub Actions CI/CD pipeline
 
-Planned improvements include:
+[ ] Unit & integration test suites (JUnit 5 + Testcontainers)
 
-* Swagger/OpenAPI documentation
-* Role-based authorization
-* Refresh token mechanism
-* Redis caching
-* Docker containerization
-* CI/CD pipeline
-* AWS deployment
-* Transaction idempotency
-* Audit logging
-* Rate limiting
-* Improved test coverage
-* Integration testing
-* Docker Compose for local development
-* Kubernetes deployment
-* Monitoring and observability
-* Frontend dashboard
-
-⸻
-
-What I Learned
-
-Building Finexa helped strengthen practical backend development skills including:
-
-* Designing REST APIs
-* Spring Boot application architecture
-* Spring Security and JWT authentication
-* Database relationships with JPA/Hibernate
-* DTO-based API design
-* Service and repository patterns
-* Financial transaction processing
-* Exception handling
-* Request validation
-* Email notification systems
-* PostgreSQL integration
-* Secure configuration management
-* Writing maintainable backend code
-
-⸻
-
-Project Goals
-
-The primary goal of Finexa is to build a realistic backend system that demonstrates how a banking application can be designed using modern Java and Spring Boot technologies.
-
-The project focuses on:
-
-Security
-   +
-Clean Architecture
-   +
-Database Design
-   +
-Financial Transactions
-   +
-REST APIs
-   +
-Real-world Backend Engineering
-
-⸻
-
-Author
-
+👨‍💻 Author
 Prabhat Kapkoti
 
-Java Backend Developer
+Java & Backend Developer
 
-Focused on:
+GitHub: @Dexturn1
 
-Java
-Spring Boot
-REST APIs
-PostgreSQL
-Spring Security
-Docker
-AWS
-Backend Engineering
-
-⸻
-
-License
-
-This project is intended for educational and portfolio purposes.
+📄 License
+This project is open-source and intended for educational and portfolio purposes.
