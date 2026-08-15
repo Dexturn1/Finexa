@@ -6,10 +6,16 @@ import com.finexa.finexa.account.entity.Account;
 import com.finexa.finexa.enums.TransactionStatus;
 import com.finexa.finexa.enums.TransactionType;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class TransactionDTO {
 
     private Long id;
