@@ -4,145 +4,304 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to Finexa</title>
+
+    <title>Welcome to Finexa Bank</title>
 
     <style>
-
         body {
             margin: 0;
             padding: 0;
-            background-color: #f4f6f9;
+            background-color: #f5f7fa;
             font-family: Arial, Helvetica, sans-serif;
+            color: #1f2937;
+        }
+
+        .wrapper {
+            width: 100%;
+            padding: 40px 15px;
+            box-sizing: border-box;
         }
 
         .container {
             max-width: 600px;
-            margin: 40px auto;
-            background: #ffffff;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
             border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,.08);
         }
+
+        /* Header */
 
         .header {
-            background: #1565c0;
-            color: white;
+            background-color: #1565c0;
+            padding: 24px 30px;
             text-align: center;
-            padding: 25px;
         }
 
-        .header h1 {
+        .brand {
             margin: 0;
-            font-size: 30px;
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
         }
+
+        .header-subtitle {
+            margin: 6px 0 0;
+            color: #dbeafe;
+            font-size: 13px;
+        }
+
+        /* Content */
 
         .content {
-            padding: 30px;
-            color: #444;
-            line-height: 1.8;
+            padding: 36px 40px;
         }
 
-        .content h2 {
+        .greeting {
+            margin: 0 0 20px;
+            color: #111827;
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .content p {
+            margin: 0 0 16px;
+            color: #4b5563;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        /* Welcome Message */
+
+        .welcome-box {
+            margin: 28px 0;
+            padding: 20px;
+            background-color: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+        }
+
+        .welcome-title {
+            margin: 0 0 6px !important;
+            color: #1e40af !important;
+            font-size: 16px !important;
+            font-weight: 600;
+        }
+
+        .welcome-text {
+            margin: 0 !important;
+            color: #374151 !important;
+            font-size: 14px !important;
+        }
+
+        /* Features */
+
+        .features-title {
+            margin: 28px 0 12px !important;
+            color: #111827 !important;
+            font-size: 15px !important;
+            font-weight: 600;
+        }
+
+        .features {
+            margin: 0 0 25px;
+            padding: 0;
+            list-style: none;
+        }
+
+        .features li {
+            margin-bottom: 11px;
+            color: #4b5563;
+            font-size: 14px;
+        }
+
+        .features li::before {
+            content: "✓";
+            margin-right: 10px;
             color: #1565c0;
-            margin-top: 0;
+            font-weight: bold;
         }
 
-        p {
-            margin: 15px 0;
-        }
+        /* CTA */
 
-        ul {
-            padding-left: 20px;
-        }
-
-        li {
-            margin-bottom: 8px;
+        .button-wrapper {
+            margin: 30px 0 10px;
+            text-align: center;
         }
 
         .button {
             display: inline-block;
-            margin-top: 20px;
-            background: #1565c0;
+            padding: 12px 28px;
+            background-color: #1565c0;
             color: #ffffff !important;
             text-decoration: none;
-            padding: 12px 28px;
-            border-radius: 5px;
-            font-weight: bold;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
         }
 
-        .button:hover {
-            background: #0d47a1;
-        }
+        /* Footer */
 
         .footer {
+            padding: 22px 30px;
+            background-color: #f8fafc;
+            border-top: 1px solid #e5e7eb;
             text-align: center;
-            background: #f2f2f2;
-            color: #666;
-            padding: 20px;
-            font-size: 13px;
         }
 
+        .footer-brand {
+            margin: 0 0 6px;
+            color: #374151;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .footer p {
+            margin: 4px 0;
+            color: #9ca3af;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        /* Mobile */
+
+        @media screen and (max-width: 600px) {
+
+            .wrapper {
+                padding: 20px 10px;
+            }
+
+            .content {
+                padding: 28px 22px;
+            }
+
+            .button {
+                display: block;
+                text-align: center;
+            }
+        }
     </style>
 
 </head>
 
 <body>
 
-<div class="container">
+<div class="wrapper">
 
-    <div class="header">
-        <h1>🏦 Finexa Bank</h1>
-    </div>
+    <div class="container">
 
-    <div class="content">
+        <!-- Header -->
 
-        <h2>
-            Welcome,
-            <span th:text="${name}">Customer</span>! 👋
-        </h2>
+        <div class="header">
 
-        <p>
-            We are excited to welcome you to
-            <strong>Finexa Bank</strong>.
-        </p>
+            <h1 class="brand">
+                Finexa Bank
+            </h1>
 
-        <p>
-            Your registration has been completed successfully.
-            You are now part of the Finexa family.
-        </p>
+            <p class="header-subtitle">
+                Secure. Simple. Reliable.
+            </p>
 
-        <p>
-            With your account, you can enjoy:
-        </p>
+        </div>
 
-        <ul>
-            <li>✔ Secure Banking</li>
-            <li>✔ Instant Money Transfers</li>
-            <li>✔ Fast Deposits & Withdrawals</li>
-            <li>✔ Real-Time Transaction Tracking</li>
-            <li>✔ Email Notifications</li>
-            <li>✔ Safe & Reliable Banking Services</li>
-        </ul>
+        <!-- Content -->
 
-        <p>
-            We're committed to providing you with a secure,
-            reliable, and seamless banking experience.
-        </p>
+        <div class="content">
 
-        <p>
-            <strong>Your financial journey starts here! 🚀</strong>
-        </p>
+            <h2 class="greeting">
+                Welcome,
+                <span th:text="${name}">Customer</span>
+            </h2>
 
-        <a href="http://localhost:3000/login" class="button">
-            Login to Your Account
-        </a>
+            <p>
+                We are pleased to welcome you to
+                <strong>Finexa Bank</strong>.
+            </p>
 
-    </div>
+            <p>
+                Your registration has been completed successfully.
+                You are now part of the Finexa family.
+            </p>
 
-    <div class="footer">
-        <strong>© 2026 Finexa Bank</strong><br>
-        Your Trusted Banking Partner<br><br>
-        This is an automated email. Please do not reply.
+            <!-- Welcome Message -->
+
+            <div class="welcome-box">
+
+                <p class="welcome-title">
+                    Welcome to Finexa Bank
+                </p>
+
+                <p class="welcome-text">
+                    We're committed to providing you with a secure,
+                    reliable, and seamless banking experience.
+                </p>
+
+            </div>
+
+            <!-- Features -->
+
+            <p class="features-title">
+                With Finexa Bank, you can:
+            </p>
+
+            <ul class="features">
+
+                <li>Securely manage your finances</li>
+
+                <li>Transfer money quickly and securely</li>
+
+                <li>Make fast deposits and withdrawals</li>
+
+                <li>Track your transactions in real time</li>
+
+                <li>Receive important account notifications</li>
+
+                <li>Access reliable banking services</li>
+
+            </ul>
+
+            <p>
+                Your financial journey with Finexa starts here.
+                We're here to make everyday banking simple and secure.
+            </p>
+
+            <!-- CTA -->
+
+            <div class="button-wrapper">
+
+                <a href="http://localhost:3000/login"
+                   class="button">
+                    Access Your Account
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+
+        <div class="footer">
+
+            <p class="footer-brand">
+                Finexa Bank
+            </p>
+
+            <p>
+                Secure Banking Made Simple
+            </p>
+
+            <p>
+                © 2026 Finexa Bank. All rights reserved.
+            </p>
+
+            <p>
+                This is an automated email. Please do not reply.
+            </p>
+
+        </div>
+
     </div>
 
 </div>
